@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFA Simulator | String Validation</title>
+    <meta name="description" content="A modern, interactive DFA simulator for educational purposes. Create, test, and visualize Deterministic Finite Automata.">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-mode"> <!-- Default to dark mode for premium feel -->
+    <div class="bg-decorations">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div id="app">
+        <nav class="navbar">
+            <div class="logo">
+                <span class="logo-icon">⚙️</span>
+                <span class="logo-text">DFA Simulator</span>
+            </div>
+            <div class="nav-actions">
+                <div id="auth-controls">
+                    <button id="signin-btn" class="btn btn-primary btn-sm">Sign In</button>
+                </div>
+                <div id="user-controls" class="hidden">
+                    <div class="user-dropdown">
+                        <button id="user-menu-btn" class="btn btn-outline btn-sm">
+                            <span class="user-icon">👤</span>
+                            <span id="username-display" class="username"></span>
+                            <span class="chevron">▼</span>
+                        </button>
+                        <div id="user-dropdown-content" class="dropdown-content hidden">
+                            <button id="my-dfas-nav-btn" class="dropdown-item">
+                                <span class="icon">📂</span> My Saved DFAs
+                            </button>
+                            <hr class="dropdown-divider">
+                            <button id="logout-btn" class="dropdown-item logout">
+                                <span class="icon">🚪</span> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button id="theme-toggle" class="btn-icon" title="Toggle Dark/Light Mode">
+                    <span class="icon">🌓</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Landing Section -->
+        <section id="landing-page" class="view active">
+            <div class="hero">
+                <h1 class="gradient-text">DFA Simulator</h1>
+                <p class="subtitle">Master Deterministic Finite Automata with real-time visualization and string validation.</p>
+                <div class="hero-buttons">
+                    <button id="start-btn" class="btn btn-primary">Start Simulation</button>
+                    <button id="learn-more-btn" class="btn btn-outline">Learn About DFA</button>
+                </div>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>String Validation</h3>
+                    <p>Test strings symbol by symbol and see how the automaton processes each step.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Dynamic Creation</h3>
+                    <p>Define your own states, alphabets, and transitions with ease.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3>Visual Feedback</h3>
+                    <p>Real-time highlighting and animations for a better learning experience.</p>
+                </div>
+            </div>
+            
+            <div class="edu-section container card">
+                <h2>What is a DFA?</h2>
+                <p>A <strong>Deterministic Finite Automaton (DFA)</strong> is a theoretical model of computation. It consists of a finite set of states and transitions between them based on input symbols.</p>
+                <ul>
+                    <li><strong>Deterministic:</strong> For every state and input symbol, there is exactly one transition.</li>
+                    <li><strong>Finite:</strong> There are a limited number of states.</li>
+                    <li><strong>Automaton:</strong> It works automatically once an input string is provided.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- DFA Configuration Section -->
+        <section id="setup-page" class="view">
+            <div class="container">
+                <div class="view-header">
+                <button class="back-btn" data-target="landing-page">Back</button>
+                <h2 class="gradient-text">Setup DFA</h2>
+            </div>
+                
+                <div class="config-grid">
+                    <div class="card config-form">
+                        <h3>Basics</h3>
+                        <div class="form-group">
+                            <label for="alphabet-input">Input Alphabet (comma separated, e.g., 0,1)</label>
+                            <input type="text" id="alphabet-input" placeholder="0,1" value="0,1">
+                        </div>
+                        <div class="form-group">
+                            <label for="states-input">Number of States</label>
+                            <input type="number" id="states-count" min="1" max="10" value="2">
+                        </div>
+                        <div class="form-group">
+                            <label>Final States</label>
+                            <div id="final-states-container" class="checkbox-group">
+                                <!-- Generated dynamically -->
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="generate-table-btn" class="btn btn-secondary">Update Transition Table</button>
+                        </div>
+                    </div>
+
+                    <div class="card transition-table-card">
+                        <h3>Transition Table</h3>
+                        <div class="table-responsive">
+                            <table id="transition-table">
+                                <thead>
+                                    <!-- Generated dynamically -->
+                                </thead>
+                                <tbody>
+                                    <!-- Generated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="form-actions mt-20">
+                            <button id="save-dfa-btn" class="btn btn-primary">Save & Continue</button>
+                            <button id="persist-dfa-btn" class="btn btn-outline" title="Save to your account">💾 Save DFA</button>
+                            <button id="template-btn" class="btn btn-outline">Load Template</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- My DFAs Section -->
+        <section id="my-dfas-page" class="view">
+            <div class="container">
+                <div class="view-header">
+                <button class="back-btn" data-target="landing-page">Back</button>
+                <h2 class="gradient-text">My Saved DFAs</h2>
+            </div>
+                <div id="saved-dfas-list" class="dfa-list-grid">
+                    <!-- Dynamically populated -->
+                    <p class="empty-msg">You haven't saved any DFAs yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulation Section -->
+        <section id="simulation-page" class="view">
+            <div class="container">
+                <div class="view-header">
+                <button class="back-btn" data-target="setup-page">Back to Setup</button>
+                <h2 class="gradient-text">Simulator</h2>
+            </div>
+
+                <div class="simulator-layout">
+                    <div class="simulation-controls card">
+                        <div class="form-group">
+                            <label for="test-string">Enter String to Validate</label>
+                            <div class="input-with-button">
+                                <input type="text" id="test-string" placeholder="Enter symbols from alphabet...">
+                                <button id="run-simulation-btn" class="btn btn-primary">Run</button>
+                            </div>
+                        </div>
+                        <div class="simulation-playback hidden" id="playback-controls">
+                            <button id="prev-step-btn" class="btn-icon">⏮️</button>
+                            <button id="play-pause-btn" class="btn-icon">▶️</button>
+                            <button id="next-step-btn" class="btn-icon">⏭️</button>
+                            <button id="reset-sim-btn" class="btn-icon">🔄</button>
+                        </div>
+                    </div>
+
+                    <div class="simulation-visualizer card">
+                        <div id="visualizer-canvas" class="canvas-container">
+                            <!-- Visual state representation -->
+                        </div>
+                        <div class="string-display" id="string-display">
+                            <!-- String processing visualization -->
+                        </div>
+                        <div id="result-banner" class="result-banner hidden">
+                            <span id="result-text">Accepted</span>
+                        </div>
+                        
+                        <!-- New Conclusion Section -->
+                        <div id="conclusion-section" class="conclusion-card hidden">
+                            <h3>Simulation Conclusion</h3>
+                            <div id="conclusion-content"></div>
+                            <button id="restart-sim-btn" class="btn btn-outline mt-20">Test Another String</button>
+                        </div>
+                    </div>
+
+                    <div class="simulation-sidebar">
+                        <div class="simulation-log card">
+                            <h3>Processing Log</h3>
+                            <div id="step-log" class="log-container">
+                                <p class="empty-msg">Run a simulation to see the logs...</p>
+                            </div>
+                        </div>
+
+                        <div class="test-cases card mt-20">
+                            <h3>Recommended Test Cases</h3>
+                            <div id="test-cases-list" class="test-list">
+                                <!-- Generated based on DFA type -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Auth Modals -->
+        <div id="signin-modal" class="modal hidden">
+            <div class="modal-content auth-modal">
+                <div class="modal-header">
+                    <div>
+                        <h3>Welcome Back</h3>
+                        <p class="modal-subtitle">Sign in to continue your progress</p>
+                    </div>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <form id="signin-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="signin-username">Username</label>
+                        <input type="text" id="signin-username" placeholder="Enter your username" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="signin-password">Password</label>
+                        <input type="password" id="signin-password" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-glow">Sign In</button>
+                    <p class="auth-switch">New here? <a href="#" id="show-signup">Create an account</a></p>
+                </form>
+            </div>
+        </div>
+
+        <div id="signup-modal" class="modal hidden">
+            <div class="modal-content auth-modal">
+                <div class="modal-header">
+                    <div>
+                        <h3>Get Started</h3>
+                        <p class="modal-subtitle">Create an account to save your DFAs</p>
+                    </div>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <form id="signup-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="signup-username">Username</label>
+                        <input type="text" id="signup-username" placeholder="Choose a username" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" placeholder="Min. 8 characters" required autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-glow">Create Account</button>
+                    <p class="auth-switch">Already have an account? <a href="#" id="show-signin">Sign in instead</a></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Save DFA Modal -->
+        <div id="save-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Save Configuration</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>Give your DFA a name</label>
+                    <input type="text" id="save-dfa-name" placeholder="e.g., My Binary DFA">
+                </div>
+                <button id="confirm-save-btn" class="btn btn-primary w-100">Save DFA</button>
+            </div>
+        </div>
+
+        <!-- Templates Modal -->
+        <div id="template-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Example DFA Templates</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="templates-list">
+                    <div class="template-item" data-template="even-zeros">
+                        <h4>Even number of 0s</h4>
+                        <p>Accepts strings with an even count of '0'.</p>
+                    </div>
+                    <div class="template-item" data-template="ends-with-1">
+                        <h4>Ends with '1'</h4>
+                        <p>Accepts any string that ends with the symbol '1'.</p>
+                    </div>
+                    <div class="template-item" data-template="divisible-by-3">
+                        <h4>Binary divisible by 3</h4>
+                        <p>Accepts binary numbers whose value is divisible by 3.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2026 DFA Simulator | Built for Educational Excellence</p>
+        </footer>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
